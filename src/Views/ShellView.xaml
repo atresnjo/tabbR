@@ -1,0 +1,124 @@
+﻿<Window x:Class="tabbR.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:tabbR.ViewModels"
+        xmlns:s="https://github.com/canton7/Stylet"
+        xmlns:converters="clr-namespace:tabbR.Converters"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:behaviors="clr-namespace:tabbR.Behaviors"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d"
+        Background="Transparent"
+        d:DataContext="{d:DesignInstance viewModels:ShellViewModel}"
+        ResizeMode="NoResize" ShowInTaskbar="True" WindowStyle="None" AllowsTransparency="True"
+        SizeToContent="Height"
+        Title="ShellView" Width="600">
+
+    <b:Interaction.Behaviors>
+        <behaviors:ActivateBehavior Activated="{Binding IsVisible, Mode=TwoWay}" />
+    </b:Interaction.Behaviors>
+
+    <Window.Resources>
+        <Style
+            x:Key="MenuItemStyle"
+            TargetType="{x:Type MenuItem}">
+            <Setter Property="Foreground" Value="WhiteSmoke" />
+        </Style>
+
+        <converters:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSourceConverter" />
+        <Style TargetType="ScrollBar">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <TextBox
+                TextWrapping="Wrap" Background="#20242D" Foreground="White"
+                Text="{Binding QuerySearch, UpdateSourceTrigger=PropertyChanged, Delay=250}" Padding="20"
+                VerticalAlignment="Top" FontSize="15"
+                VerticalContentAlignment="Center">
+                <TextBox.ContextMenu>
+                    <ContextMenu
+                        Background="#20242D"
+                        Foreground="White">
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Settings"
+                                  Command="{s:Action ShowSettings}" />
+                        <MenuItem Style="{StaticResource MenuItemStyle}" Header="Exit" Command="{s:Action Exit}" />
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
+        </Grid>
+        <ListBox
+            MaxHeight="600"
+            KeyDown="{s:Action KeyDown}"
+            Background="#1D1E25" ItemsSource="{Binding Results}" SelectionMode="Single" MinWidth="500"
+            SelectedItem="{Binding SelectedSearchResultItemModel}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="2" />
+                                <Style.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                        Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                    </DataTrigger>
+                                    <Trigger Property="Border.IsMouseOver" Value="True">
+                                        <Setter Property="Border.BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel
+                            Orientation="Horizontal">
+                            <Grid>
+                                <Grid.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Padding" Value="10,2,0,0" />
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="500" />
+                                </Grid.ColumnDefinitions>
+                                <Image
+                                    Source="{Binding ImagePayload, Converter={StaticResource ByteArrayToImageSourceConverter}}"
+                                    Grid.Row="0" Grid.Column="0 " Margin="1,3, 0, -15" />
+                                <Border Grid.Row="0" Grid.Column="1">
+                                    <TextBlock TextAlignment="Left" FontSize="18" Foreground="White"
+                                               Text="{Binding Path=Title}"
+                                               Margin="0">
+                                        <TextBlock.InputBindings>
+                                            <MouseBinding Gesture="LeftDoubleClick"
+                                                          Command="{s:Action QueryResultClicked}" />
+                                        </TextBlock.InputBindings>
+                                    </TextBlock>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1">
+                                    <TextBlock
+                                        FontSize="14"
+                                        Foreground="DarkGray"
+                                        Text="{Binding Path=Subtitle}"
+                                        Margin="0" TextAlignment="Left">
+                                        <TextBlock.InputBindings>
+                                            <MouseBinding Gesture="LeftDoubleClick"
+                                                          Command="{s:Action QueryResultClicked}" />
+                                        </TextBlock.InputBindings>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>
